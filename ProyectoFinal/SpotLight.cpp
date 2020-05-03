@@ -1,0 +1,76 @@
+#include "SpotLight.h"
+
+
+
+SpotLight::SpotLight() : PointLight()
+{
+	direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	edge = 0.0f;
+	procEdge = cosf(glm::radians(edge));
+	adelante = true;
+}
+
+void SpotLight::cambiarDireccion() {
+	adelante = !adelante;
+	if (adelante) {
+		direction = glm::vec3(1.0f, .0f, 0.0f);
+		color = glm::vec3(1.f, 1.f, 1.f);
+	}
+	else {
+		direction = glm::vec3(-1.0f, .0f, 0.0f);
+		color = glm::vec3(1.f, .0f, 0.f);
+	}
+}
+
+void SpotLight::cambiarPos(GLfloat x) {
+	GLfloat offset = -2.f;
+	position = glm::vec3(posicion.x + x + offset, posicion.y, posicion.z);
+}
+
+SpotLight::SpotLight(GLfloat red, GLfloat green, GLfloat blue, 
+	GLfloat aIntensity, GLfloat dIntensity, 
+	GLfloat xPos, GLfloat yPos, GLfloat zPos, 
+	GLfloat xDir, GLfloat yDir, GLfloat zDir, 
+	GLfloat con, GLfloat lin, GLfloat exp, 
+	GLfloat edg) : PointLight(red, green, blue, aIntensity, dIntensity, xPos, yPos, zPos, con, lin, exp)
+{
+	direction = glm::normalize(glm::vec3(xDir, yDir, zDir));
+
+	edge = edg;
+	procEdge = cosf(glm::radians(edge));
+	adelante = true;
+	posicion = glm::vec3(xPos, yPos, zPos);
+}
+
+void SpotLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientColourLocation, 
+	GLuint diffuseIntensityLocation, GLuint positionLocation, GLuint directionLocation, 
+	GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation, 
+	GLuint edgeLocation)
+{
+	glUniform3f(ambientColourLocation, color.x, color.y, color.z);
+	glUniform1f(ambientIntensityLocation, ambientIntensity);
+	glUniform1f(diffuseIntensityLocation, diffuseIntensity);
+
+	glUniform3f(positionLocation, position.x, position.y, position.z);
+	glUniform1f(constantLocation, constant);
+	glUniform1f(linearLocation, linear);
+	glUniform1f(exponentLocation, exponent);
+
+	glUniform3f(directionLocation, direction.x, direction.y, direction.z);
+	glUniform1f(edgeLocation, procEdge);
+}
+
+void SpotLight::SetFlash(glm::vec3 pos, glm::vec3 dir)
+{
+	position = pos;
+	direction = dir;
+}
+
+void SpotLight::SetPos(glm::vec3 pos)
+{
+	position = pos;
+}
+
+SpotLight::~SpotLight()
+{
+}
