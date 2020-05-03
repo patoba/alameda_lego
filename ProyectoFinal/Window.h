@@ -1,7 +1,7 @@
 #pragma once
-#include <stdio.h>
-#include <glew.h>
-#include <glfw3.h>
+#include<stdio.h>
+#include<glew.h>
+#include<glfw3.h>
 
 class Window
 {

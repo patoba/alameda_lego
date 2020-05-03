@@ -38,25 +38,11 @@ std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
 
-Texture brickTexture;
-Texture dirtTexture;
-Texture plainTexture;
-Texture dadoTexture;
-Texture pisoTexture;
-Texture Tagave;
-//materiales
-Material Material_brillante;
-Material Material_opaco;
 //luz direccional
 DirectionalLight mainLight;
 //para declarar varias luces de tipo pointlight
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
-
-Model Kitt_M;
-Model Llanta_M;
-Model Camino_M;
-Model Blackhawk_M;
 
 Skybox skybox;
 
@@ -114,11 +100,6 @@ int main()
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
 
-	
-	Tagave.LoadTextureA();
-	Material_brillante = Material(4.0f, 256);
-	Material_opaco = Material(0.3f, 4);
-
 
 	//luz direccional, sólo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
@@ -155,33 +136,71 @@ int main()
 		10.0f);
 	//pointLightCount++;
 
-	
+
+	//skyBox
+
 	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_lf.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_dn.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_up.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_bk.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
+	skyboxFaces.push_back("Textures/Skybox/dia1/rt.tga");//rt
+	skyboxFaces.push_back("Textures/Skybox/dia1/lf.tga");//lf
+	skyboxFaces.push_back("Textures/Skybox/dia1/dn.tga");//dn
+	skyboxFaces.push_back("Textures/Skybox/dia1/up.tga");//up
+	skyboxFaces.push_back("Textures/Skybox/dia1/lf.tga");//bk
+	skyboxFaces.push_back("Textures/Skybox/dia1/lf.tga");//ft
+	Skybox dia1 = Skybox(skyboxFaces);
 
-	/*skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_rt.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_lf.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_dn.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_up.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_bk.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake-night_ft.tga");*/
+	skyboxFaces.clear();
+	skyboxFaces.push_back("Textures/Skybox/dia2/lf.tga");//rt
+	skyboxFaces.push_back("Textures/Skybox/dia2/lf.tga");//lf
+	skyboxFaces.push_back("Textures/Skybox/dia2/dn.tga");//dn
+	skyboxFaces.push_back("Textures/Skybox/dia2/up.tga");//up
+	skyboxFaces.push_back("Textures/Skybox/dia2/lf.tga");//bk
+	skyboxFaces.push_back("Textures/Skybox/dia2/lf.tga");//ft
+	Skybox dia2 = Skybox(skyboxFaces);
 
+	skyboxFaces.clear();
+	skyboxFaces.push_back("Textures/Skybox/dia3/rt.tga");//rt
+	skyboxFaces.push_back("Textures/Skybox/dia3/lf.tga");//lf
+	skyboxFaces.push_back("Textures/Skybox/dia3/dn.tga");//dn
+	skyboxFaces.push_back("Textures/Skybox/dia3/up.tga");//up
+	skyboxFaces.push_back("Textures/Skybox/dia3/rt.tga");//bk
+	skyboxFaces.push_back("Textures/Skybox/dia3/rt.tga");//ft
+	Skybox dia3 = Skybox(skyboxFaces);
 
-	skybox = Skybox(skyboxFaces);
+	skyboxFaces.clear();
+	skyboxFaces.push_back("Textures/Skybox/noche/rt.tga");//rt
+	skyboxFaces.push_back("Textures/Skybox/noche/lf.tga");//lf
+	skyboxFaces.push_back("Textures/Skybox/noche/dn.tga");//dn
+	skyboxFaces.push_back("Textures/Skybox/noche/up.tga");//up
+	skyboxFaces.push_back("Textures/Skybox/noche/lf.tga");//bk
+	skyboxFaces.push_back("Textures/Skybox/noche/lf.tga");//ft
+	Skybox noche = Skybox(skyboxFaces);
 
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 	
-	
+	int tiempo = 0.f;
+	float f = 1500.f;
+
 	while (!mainWindow.getShouldClose())
 	{
+		//configuracion dia - noche
+		int intervalo = (int)(tiempo / f) % 6;
+		if (intervalo == 0) {
+			skybox = dia1;
+		}
+		else if (intervalo == 1) {
+			skybox = dia2;
+		}
+		else if (intervalo == 2) {
+			skybox = dia3;
+		}
+		else {
+			skybox = noche;
+		}
+
+
 		//Recibir eventos del usuario
 		glfwPollEvents();
 
@@ -213,19 +232,13 @@ int main()
 		glm::mat4 model(1.0);
 		glm::mat4 aux(1.0);
 
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(30.0f, 1.0f,30.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		//pisoTexture.UseTexture();
-		plainTexture.UseTexture();
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[0]->RenderMesh();
-		
+		//aqui se insertan Modelos
 
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
+
+		tiempo++;
 	}
 
 	return 0;

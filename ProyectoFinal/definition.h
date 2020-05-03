@@ -9,7 +9,7 @@
 #define HEADERS_DEFINITION_H_
 
 #include <glm.hpp>
-#include <GL\glew.h>
+#include <glew.h>
 #include <gtc/random.hpp>
 #include <iostream>
 
