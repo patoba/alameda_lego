@@ -2,6 +2,7 @@
 
 Window::Window()
 {
+	luces_quiosko_prendidas = false;
 	width = 800;
 	height = 600;
 	for (size_t i = 0; i < 1024; i++)
@@ -12,7 +13,7 @@ Window::Window()
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
 	
-
+	luces_quiosko_prendidas = false;
 	width = windowWidth;
 	height = windowHeight;
 	for (size_t i = 0; i < 1024; i++)
@@ -105,7 +106,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 	if (key == GLFW_KEY_P)
 	{
-		theWindow-> !luces_quiosko_prendidas;
+		theWindow->luces_quiosko_prendidas= !theWindow->luces_quiosko_prendidas;
 	}
 	
 	if (key >= 0 && key < 1024)

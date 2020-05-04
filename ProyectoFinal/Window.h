@@ -13,7 +13,7 @@ public:
 	GLfloat getBufferHeight() { return bufferHeight; }
 	GLfloat getXChange();
 	GLfloat getYChange();
-	bool getLucesPrendidasQuiosko() { return luces_quiosko_prendidas };
+	bool getLucesPrendidasQuiosko() { return luces_quiosko_prendidas; };
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);}
 	bool* getsKeys() { return keys; }
