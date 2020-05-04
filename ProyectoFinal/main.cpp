@@ -30,19 +30,20 @@
 #include "SpotLight.h"
 
 const float toRadians = 3.14159265f / 180.0f;
-float movCoche;
-float movOffset;
-bool avanza;
+
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
 
+Model alameda;
+
 //luz direccional
 DirectionalLight mainLight;
+
 //para declarar varias luces de tipo pointlight
-PointLight pointLights[MAX_POINT_LIGHTS];
-SpotLight spotLights[MAX_SPOT_LIGHTS];
+PointLight pointLights[MAX_POINT_LIGHTS];  //luminarias
+SpotLight spotLights[MAX_SPOT_LIGHTS];  //quiosco
 
 Skybox skybox;
 
@@ -100,42 +101,59 @@ int main()
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
 
-
 	//luz direccional, sólo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
 								0.3f, 0.3f,
 								0.0f, 0.0f, -1.0f);
-	//contador de luces puntuales
-	unsigned int pointLightCount = 0;
-	//Declaración de primer luz puntual
-	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
-								0.0f, 1.0f,
-								2.0f, 1.5f,1.5f,
-								0.3f, 0.2f, 0.1f);
-	pointLightCount++;
 	
+	//Luminarias (6)
+	unsigned int pointLightCount = 0;
+	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,//Posicion
+		0.3f, 0.2f, 0.1f);
+	pointLights[1] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,//Posicion
+		0.3f, 0.2f, 0.1f);
+	pointLights[2] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,//Posicion
+		0.3f, 0.2f, 0.1f);
+	pointLights[3] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,//Posicion
+		0.3f, 0.2f, 0.1f);
+	pointLights[4] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,//Posicion
+		0.3f, 0.2f, 0.1f);
+	pointLights[5] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+		0.0f, 1.0f,
+		2.0f, 1.5f, 1.5f,  //Posicion
+		0.3f, 0.2f, 0.1f);
+
+	//Quiosko (3)  
 	unsigned int spotLightCount = 0;
-	//linterna
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+	spotLights[0] = SpotLight(1.0f, .0f, 1.0f,
 		0.0f, 2.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,  // Posicion
+		0.0f, -1.0f, 0.0f,  //Vector Direccion
 		1.0f, 0.0f, 0.0f,
 		20.0f);
-	spotLightCount++;
 
-	//luz fija
-	
-	spotLightCount++;
-	//luz de faro
-	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
+	spotLights[1] = SpotLight(1.0f, .0f, .0f,
+		0.0f, 2.0f,
+		0.0f, -1.5f, 0.f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		10.0f); 
+	spotLights[2] = SpotLight(.0f, .0f, 1.0f,
 		0.0f, 2.0f,
 		0.0f, -1.5f, 0.f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		10.0f);
-	//pointLightCount++;
-
 
 	//skyBox
 
@@ -176,19 +194,37 @@ int main()
 	Skybox noche = Skybox(skyboxFaces);
 
 
+	//modelos
+
+	alameda = Model();
+	alameda.LoadModel("Model/prueba.obj");
+
+	//Materiales
+
+	Material Material_brillante = Material(4.0f, 256);
+
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 	
+
+	//tiempo
 	int tiempo = 0.f;
 	float f = 1500.f;
 
+	//animacion barco
+	float barco_x = 11, barco_y = 0, barco_z = 4;  // condiciones inciciales del barco
+	float angulo = -90, ang_temp = 0;
+	const float f_barco = 1000.f;
+	const float movx = 2.f * barco_x / f;
+	const float movz = 2.f * barco_z / f;
 	while (!mainWindow.getShouldClose())
 	{
 		//configuracion dia - noche
 		int intervalo = (int)(tiempo / f) % 6;
 		if (intervalo == 0) {
 			skybox = dia1;
+			pointLightCount = 0;
 		}
 		else if (intervalo == 1) {
 			skybox = dia2;
@@ -196,10 +232,39 @@ int main()
 		else if (intervalo == 2) {
 			skybox = dia3;
 		}
-		else {
+		else {  //noche
 			skybox = noche;
+			pointLightCount = MAX_POINT_LIGHTS;
 		}
 
+		if (mainWindow.getLucesPrendidasQuiosko()) {
+			spotLightCount = 0;
+		}
+		else {
+			if ((int)(tiempo / 200) % 2)  // cambiar colores
+				spotLightCount = MAX_SPOT_LIGHTS;
+			else
+				spotLightCount = 0;
+		}
+
+		//Barco
+		int inter = (int)(tiempo / f_barco);
+		int estado = inter % 4;
+		if (estado == 0) {
+			barco_x -= movx;//pos
+		}
+		else if (estado == 1) {//neg
+			barco_z -= movz;
+		}
+		else if (estado == 2) {//pos
+			barco_x += movx;//pos
+		}
+		else {//neg
+			barco_z += movz;
+		}
+		if ((int)tiempo % (int)f_barco >= .75f * f_barco) {
+			angulo += 90.f / (f_barco / 4);
+		}
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
@@ -208,7 +273,8 @@ int main()
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
 		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
@@ -233,8 +299,12 @@ int main()
 		glm::mat4 aux(1.0);
 
 		//aqui se insertan Modelos
-
-		glUseProgram(0);
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.f, -10.f, 0.f));
+		model = glm::scale(model, glm::vec3(1000.f, 1000.f, 1000.f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		alameda.RenderModel();
 
 		mainWindow.swapBuffers();
 

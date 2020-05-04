@@ -4,9 +4,6 @@ Window::Window()
 {
 	width = 800;
 	height = 600;
-	luzPuntual1x = luzPuntual1y = luzPuntual1z = luzPuntual2x = luzPuntual2y = luzPuntual2z = 0.f;
-	luzPuntual2_on = luzPuntual1_on = 1.f;
-	linterna_encendida = 1.f;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -14,13 +11,10 @@ Window::Window()
 }
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
-	luzPuntual1x = luzPuntual1y = luzPuntual1z = luzPuntual2x = luzPuntual2y = luzPuntual2z = 0.f;
-	luzPuntual2_on = luzPuntual1_on = 1.f;
-	linterna_encendida = 1.f;
+	
 
 	width = windowWidth;
 	height = windowHeight;
-	muevex = 2.0f;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -109,25 +103,11 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	if (key == GLFW_KEY_Y)
+	if (key == GLFW_KEY_P)
 	{
-		theWindow-> muevex += 1.0;
+		theWindow-> !luces_quiosko_prendidas;
 	}
-	if (key == GLFW_KEY_U)
-	{
-		theWindow-> muevex -= 1.0;
-	}
-	if (key == GLFW_KEY_H) {
-		theWindow->luzPuntual1z -= 1.f;
-	}
-	if (key == GLFW_KEY_J) {
-		theWindow->luzPuntual1z += 1.f;
-	}
-
-	if (key == GLFW_KEY_O && action == GLFW_PRESS) {
-		theWindow->linterna_encendida = !(theWindow->linterna_encendida);
-	}
-
+	
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
