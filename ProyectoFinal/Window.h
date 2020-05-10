@@ -18,7 +18,9 @@ public:
 		return  glfwWindowShouldClose(mainWindow);}
 	bool* getsKeys() { return keys; }
 	void swapBuffers() { return glfwSwapBuffers(mainWindow); }
-	
+	int getCamera() { return camara; };
+	int getEstadoManzana() { return estado_manzana; };
+	void siguienteEstadoManzana() { estado_manzana = estado_manzana + 1; if (estado_manzana == 3) estado_manzana = 0; }
 	~Window();
 private: 
 	GLFWwindow *mainWindow;
@@ -30,10 +32,11 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
+	int camara;
 	bool luces_quiosko_prendidas;
 	bool mouseFirstMoved;
+	int estado_manzana;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
 	static void ManejaMouse(GLFWwindow* window, double xPos, double yPos);
-
 };
 

@@ -5,6 +5,7 @@ Window::Window()
 	luces_quiosko_prendidas = false;
 	width = 800;
 	height = 600;
+	estado_manzana= camara = 0;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -12,7 +13,8 @@ Window::Window()
 }
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
-	
+	estado_manzana= camara = 0;
+
 	luces_quiosko_prendidas = false;
 	width = windowWidth;
 	height = windowHeight;
@@ -104,22 +106,34 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	if (key == GLFW_KEY_P)
+	if (key == GLFW_KEY_P && action == GLFW_RELEASE)  //encender luces quiosko
 	{
 		theWindow->luces_quiosko_prendidas= !theWindow->luces_quiosko_prendidas;
 	}
-	
+	if (key == GLFW_KEY_M && action == GLFW_RELEASE)  //cambiar camara
+	{
+		theWindow->camara= theWindow->camara+1;
+		if (theWindow->camara == 3)
+			theWindow->camara = 0;
+	}
+	if (key == GLFW_KEY_V && action == GLFW_RELEASE) {
+		if (theWindow->estado_manzana == 0)
+			theWindow->estado_manzana = 1;
+		else
+			theWindow->estado_manzana = 0;
+
+	}
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
 		{
 			theWindow->keys[key] = true;
-			printf("se presiono la tecla %d'\n", key);
+			//printf("se presiono la tecla %d'\n", key);
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			theWindow->keys[key] = false;
-			printf("se solto la tecla %d'\n", key);
+			//printf("se solto la tecla %d'\n", key);
 		}
 	}
 }
