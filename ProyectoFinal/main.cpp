@@ -33,7 +33,6 @@
 #include "Skybox.h"
 #include"SpotLight.h"
 
-
 const float toRadians = 3.14159265f / 180.0f;
 
 Window mainWindow;
@@ -53,20 +52,20 @@ Model barco;
 Model ballena;
 Model fuente;
 Model lampara;
-Model pino;
 Model manzana;
+Model pino;
+Model rejaChica;
+Model rejaGrande;
 
 Skybox skybox;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 
-
-//Materiales
+// Materiales
 
 Material Material_brillante;
 Material Material_opaco;
-
 
 // Vertex Shader
 static const char* vShader = "shaders/shader_light.vert";
@@ -74,7 +73,7 @@ static const char* vShader = "shaders/shader_light.vert";
 // Fragment Shader
 static const char* fShader = "shaders/shader_light.frag";
 //cálculo del promedio de las normales para sombreado de Phong
-void calcAverageNormals(unsigned int * indices, unsigned int indiceCount, GLfloat * vertices, unsigned int verticeCount,
+void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
 	for (size_t i = 0; i < indiceCount; i += 3)
@@ -102,11 +101,9 @@ void calcAverageNormals(unsigned int * indices, unsigned int indiceCount, GLfloa
 	}
 }
 
-
 //PARA KEYFRAMES
-
 //POSICION DELFIN
-glm::vec3 posicion_delfin = glm::vec3(1.0f, 1.f, 5.f);
+glm::vec3 posicion_delfin = glm::vec3(-3.0f, 1.f, -130.f);
 
 float reproduciranimacion, habilitaranimacion, guardoFrame, reinicioFrame, ciclo, ciclo2, contador = 0;
 std::string archivo_keyframes = "datos.csv";
@@ -171,7 +168,7 @@ void animate(void)
 			}
 			else //Next frame interpolations
 			{
-				//printf("entro aqu�\n");
+				//printf("entro aqui\n");
 				i_curr_steps = 0; //Reset counter
 				//Interpolation
 				interpolation();
@@ -179,7 +176,7 @@ void animate(void)
 		}
 		else
 		{
-			//printf("se qued� aqui\n");
+			//printf("se quedo aqui\n");
 			//printf("max steps: %f", i_max_steps);
 			//Draw animation
 			movAvion_x += KeyFrame[playIndex].movAvion_xInc;
@@ -196,7 +193,7 @@ void leer_keyframes() {
 
 	std::ifstream lectura;
 	lectura.open(archivo_keyframes, std::ifstream::in);
-	int i=0;
+	int i = 0;
 	for (std::string linea; std::getline(lectura, linea); i++)
 	{
 		std::stringstream registro(linea);
@@ -243,7 +240,7 @@ void inputKeyframes(bool* keys)
 				playIndex = 0;
 				i_curr_steps = 0;
 				reproduciranimacion++;
-				printf("presiona 0 para habilitar reproducir de nuevo la animaci�n'\n");
+				printf("presiona 0 para habilitar reproducir de nuevo la animación'\n");
 				habilitaranimacion = 0;
 
 			}
@@ -279,14 +276,15 @@ void inputKeyframes(bool* keys)
 
 void CreateShaders()
 {
-	Shader *shader1 = new Shader();
+	Shader* shader1 = new Shader();
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
 }
 
 int main()
 {
-	mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
+	//mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
+	mainWindow = Window(2560, 1440);
 	mainWindow.Initialise();
 
 	CreateShaders();
@@ -299,12 +297,13 @@ int main()
 
 	//luz direccional, sólo 1 y siempre debe de existir
 	DirectionalLight sol = mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.3f, 0.3f,
-		0.0f, 0.0f, -1.0f);
+		0.7f, 0.7f,
+		0.0f, 10.0f, -1.0f);
 
 	DirectionalLight luna = DirectionalLight(0.0f, 0.0f, 0.0f,
 		0.f, 0.3f,
 		0.0f, 0.0f, -1.0f);
+
 	//Luminarias (6)
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
@@ -347,6 +346,7 @@ int main()
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		10.0f);
+
 	spotLights[2] = SpotLight(.0f, .0f, 1.0f,
 		0.0f, 2.0f,
 		0.0f, -1.5f, 0.f,
@@ -393,17 +393,16 @@ int main()
 	Skybox noche = Skybox(skyboxFaces);
 
 	skybox = dia1;
-
 	//Modelos
 
 	alameda = Model();
-	//alameda.LoadModel("Models/ground.obj");
+	alameda.LoadModel("models/alameda.obj");
 
 	barco = Model();
-	//barco.LoadModel("Models/PirateShip.obj");
+	barco.LoadModel("Models/PirateShip.obj");
 
 	ballena = Model();
-	ballena.LoadModel("Models/Ballena.obj");
+	ballena.LoadModel("models/Ballena.obj");
 
 	fuente = Model();
 	//fuente.LoadModel("Models/Fountain.obj");
@@ -415,7 +414,13 @@ int main()
 	//pino.LoadModel("Models/Pine.obj");
 
 	manzana = Model();
-	manzana.LoadModel("Models/Manzana.obj");
+	manzana.LoadModel("models/Manzana.obj");
+
+	rejaChica = Model();
+	rejaChica.LoadModel("models/rejaChica.obj");
+
+	rejaGrande = Model();
+	rejaGrande.LoadModel("models/rejaGrande.obj");
 
 	Model arbol_manzano = Model();
 	arbol_manzano.LoadModel("models/arbol_manzano.obj");
@@ -542,7 +547,6 @@ int main()
 	glm::vec3 posicion_alameda = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 posicion_arbol_animacion = glm::vec3(-10 * largo_lego, 0.f, -10 * largo_lego);
 	glm::vec3 posicion_quiosko = glm::vec3(4 * largo_lego, 0.f, 0.f);
-	
 
 	//UTILES PARA ANIMACION COMPLEJA
 	glm::vec3 posicion_manzana = glm::vec3(posicion_arbol_animacion.x + 11.f, posicion_arbol_animacion.y + 6.5f * altura_lego, posicion_arbol_animacion.z + 1.5f);
@@ -550,11 +554,11 @@ int main()
 	const float altura_manzana_inicial = posicion_manzana.y;
 	float vi;
 	float tiempo1;
-	const float f_manzana = 1000.f;
+	const float f_manzana = 100.f;
+
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
-
 		//keyframe 
 		inputKeyframes(mainWindow.getsKeys());
 		animate();
@@ -588,13 +592,13 @@ int main()
 				spotLightCount = 0;
 		}
 
-
 		//ANIMACION MANZANA
 		float tiempo_manzana_actual = tiempo / f_manzana;
 		if (mainWindow.getEstadoManzana() == 0) {  //esta arriba sin moverse
 			posicion_manzana.y = altura_manzana_inicial;
 			tiempo1 = tiempo_manzana_actual;
-		} else if (mainWindow.getEstadoManzana() == 1) {  //esta en caida libre
+		}
+		else if (mainWindow.getEstadoManzana() == 1) {  //esta en caida libre
 			tiempo_manzana_actual -= tiempo1;
 			posicion_manzana.y = altura_manzana_inicial - g * tiempo_manzana_actual * tiempo_manzana_actual;
 			if (posicion_manzana.y <= 0) {
@@ -603,7 +607,8 @@ int main()
 				posicion_manzana.y = 0.f;
 				tiempo1 = tiempo_manzana_actual;
 			}
-		} else if (mainWindow.getEstadoManzana() == 2) {  //esta en tiro vertical
+		}
+		else if (mainWindow.getEstadoManzana() == 2) {  //esta en tiro vertical
 			tiempo_manzana_actual -= tiempo1;
 			posicion_manzana.y = (vi * tiempo_manzana_actual - g * tiempo_manzana_actual * tiempo_manzana_actual / 2);
 			if (posicion_manzana.y <= 0) {
@@ -611,7 +616,7 @@ int main()
 				posicion_manzana.y = 0.f;
 				tiempo1 = tiempo / f_manzana;
 			}
-		} 
+		}
 
 		//para las camaras, se usa m para cambiar de camara
 		position = camera.getCameraPosition();
@@ -666,7 +671,7 @@ int main()
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		skybox.DrawSkybox(viewMatrix, projection);
+		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
@@ -675,14 +680,12 @@ int main()
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
-
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
+
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-
 		glUniform3f(uniformEyePosition, position.x, position.y, position.z);
 
 		glm::mat4 model(1.0);
@@ -693,21 +696,47 @@ int main()
 		glm::mat4 aux3(1.0);
 		glm::mat4 aux4(1.0);
 
-
-		//ALAMEDA
 		model = glm::mat4(1.0);
-		model = aux = glm::translate(model, glm::vec3(posicion_alameda));  //muy importante
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		alameda.RenderModel();
 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-33.0f, 0.0f, -49.62f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaChica.RenderModel();
 
-		//
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(32.0f, 0.0f, -49.62f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaChica.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-33.0f, 0.0f, 48.47f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaChica.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(32.0f, 0.0f, 48.47f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaChica.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-69.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaGrande.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(69.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		rejaGrande.RenderModel();
+
 		//EMPIEZA QUIOSKO
 		//
 		//gris claro
 		model = aux;
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(1.f, 0.f, 0.f));
-		model = aux1 = glm::translate(model, glm::vec3(0.f, 0, 0.f));
+		model = glm::translate(model, glm::vec3(-45.0f, 2.0f, -9.f));
+		model = aux1 = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		plate_round_corner_6x6.RenderModel();
 
@@ -918,7 +947,6 @@ int main()
 		//TERIMNA QUIOSKO
 		//
 
-		//
 		//INICIO AVATAR
 		//
 
@@ -960,7 +988,7 @@ int main()
 		model = aux3 = glm::translate(model, glm::vec3(0.f, 4 * altura_lego / 3, 0.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		hips.RenderModel();
-		
+
 		//pie izquierdo
 		model = aux3;
 		model = glm::translate(model, glm::vec3(0.f, 1.5f * altura_lego / 3, 0.f));
@@ -1009,12 +1037,12 @@ int main()
 		model = glm::translate(model, glm::vec3(posicion_delfin.x + movAvion_x, posicion_delfin.y +
 			movAvion_y, posicion_delfin.z));
 		//model = glm::rotate(model, 180 * toRadians, glm::vec3(1.f, 0.f, 0.f));
+		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
 		model = glm::rotate(model, giroAvion * toRadians, glm::vec3(0.f, 0.f, 1.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		ballena.RenderModel();
 
 		//barquito
-		
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(barco_x, barco_y, barco_z));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.f, 1.f, 0.f));
@@ -1023,7 +1051,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		barco.RenderModel();
-		
+
 		mainWindow.swapBuffers();
 
 		tiempo++;
