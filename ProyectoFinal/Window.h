@@ -15,15 +15,16 @@ public:
 	GLfloat getYChange();
 	bool getLucesPrendidasQuiosko() { return luces_quiosko_prendidas; };
 	bool getShouldClose() {
-		return  glfwWindowShouldClose(mainWindow);}
+		return  glfwWindowShouldClose(mainWindow);
+	}
 	bool* getsKeys() { return keys; }
 	void swapBuffers() { return glfwSwapBuffers(mainWindow); }
 	int getCamera() { return camara; };
 	int getEstadoManzana() { return estado_manzana; };
 	void siguienteEstadoManzana() { estado_manzana = estado_manzana + 1; if (estado_manzana == 3) estado_manzana = 0; }
 	~Window();
-private: 
-	GLFWwindow *mainWindow;
+private:
+	GLFWwindow* mainWindow;
 	GLint width, height;
 	bool keys[1024];
 	GLint bufferWidth, bufferHeight;
