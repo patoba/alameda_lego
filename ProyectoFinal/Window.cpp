@@ -5,7 +5,7 @@ Window::Window()
 	luces_quiosko_prendidas = false;
 	width = 800;
 	height = 600;
-	estado_manzana= camara = 0;
+	estado_manzana = camara = 0;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -13,7 +13,7 @@ Window::Window()
 }
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
-	estado_manzana= camara = 0;
+	estado_manzana = camara = 0;
 
 	luces_quiosko_prendidas = false;
 	width = windowWidth;
@@ -25,10 +25,10 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 }
 int Window::Initialise()
 {
-	//InicializaciÃ³n de GLFW
+	//Inicialización de GLFW
 	if (!glfwInit())
 	{
-		printf("FallÃ³ inicializar GLFW");
+		printf("Falló inicializar GLFW");
 		glfwTerminate();
 		return 1;
 	}
@@ -48,7 +48,7 @@ int Window::Initialise()
 		glfwTerminate();
 		return 1;
 	}
-	//Obtener tamaÃ±o de Buffer
+	//Obtener tamaño de Buffer
 	glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
 
 	//asignar el contexto
@@ -63,7 +63,7 @@ int Window::Initialise()
 
 	if (glewInit() != GLEW_OK)
 	{
-		printf("FallÃ³ inicializaciÃ³n de GLEW");
+		printf("Falló inicialización de GLEW");
 		glfwDestroyWindow(mainWindow);
 		glfwTerminate();
 		return 1;
@@ -71,10 +71,10 @@ int Window::Initialise()
 
 	glEnable(GL_DEPTH_TEST); //HABILITAR BUFFER DE PROFUNDIDAD
 							 // Asignar valores de la ventana y coordenadas
-							 
+
 							 //Asignar Viewport
 	glViewport(0, 0, bufferWidth, bufferHeight);
-	//Callback para detectar que se estÃ¡ usando la ventana
+	//Callback para detectar que se está usando la ventana
 	glfwSetWindowUserPointer(mainWindow, this);
 }
 
@@ -108,11 +108,11 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 	if (key == GLFW_KEY_P && action == GLFW_RELEASE)  //encender luces quiosko
 	{
-		theWindow->luces_quiosko_prendidas= !(theWindow->luces_quiosko_prendidas);
+		theWindow->luces_quiosko_prendidas = !(theWindow->luces_quiosko_prendidas);
 	}
 	if (key == GLFW_KEY_M && action == GLFW_RELEASE)  //cambiar camara
 	{
-		theWindow->camara= theWindow->camara+1;
+		theWindow->camara = theWindow->camara + 1;
 		if (theWindow->camara == 3)
 			theWindow->camara = 0;
 	}
