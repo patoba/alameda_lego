@@ -8,7 +8,6 @@
 #include <glfw3.h>
 #include <string>
 #include <sstream>
-#include <vector>
 
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
@@ -34,6 +33,7 @@
 #include "Skybox.h"
 #include"SpotLight.h"
 
+
 const float toRadians = 3.14159265f / 180.0f;
 
 Window mainWindow;
@@ -45,7 +45,7 @@ Camera camera;
 DirectionalLight mainLight;
 //para declarar varias luces de tipo pointlight
 PointLight pointLights[MAX_POINT_LIGHTS];
-SpotLight spotLights[MAX_SPOT_LIGHTS];
+SpotLight *spotLights;
 
 
 Model alameda;
@@ -288,13 +288,54 @@ void CreateShaders()
 
 int main()
 {
-	//mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
-	mainWindow = Window(2560, 1440);
+	mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
+	//mainWindow = Window(2560, 1440);
 	mainWindow.Initialise();
 
 	CreateShaders();
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
+
+	//tiempo
+	int tiempo = 0.f;
+	float f = 1500.f;
+
+	//barco
+	float barco_x = 150, barco_y = -2.0f, barco_z = 150;  // condiciones inciciales del barco
+	float angulo = -90, ang_temp = 0;
+	const float f_barco = 1000.f;
+	const float movx = 3.5f * barco_x / (f);
+	const float movz = 3.5f * barco_z / (f);
+	float escala = 1.f;
+	const float altura_lego = .96f;
+	const float largo_lego = .8f;
+
+
+	//personaje
+	glm::vec3 posicion_avatar = glm::vec3(0.f,2.f,0.f);
+
+	//importante para acomodar objetos, luces, y animaciones
+	glm::vec3 posicion_alameda = glm::vec3(0.f, 0.f, 0.f);
+	glm::vec3 posicion_arbol_animacion = glm::vec3(-10 * largo_lego, 0.f, -10 * largo_lego);
+	glm::vec3 posicion_quiosko = glm::vec3(4 * largo_lego, 0.f, 0.f);
+	glm::vec3 posicion_lamparas[] = { glm::vec3(-50.5f, 0.0f, -47.f), glm::vec3(-15.5f, 0.0f, -47.f), glm::vec3(14.5f, 0.0f, -47.f), glm::vec3(49.5f, 0.0f, -47.f),
+										glm::vec3(-41.f, 0.0f, -37.f), glm::vec3(-25.f, 0.0f, -37.f), glm::vec3(24.f, 0.0f, -37.f), glm::vec3(40.f, 0.0f, -37.f),
+										glm::vec3(-50.5f, 0.0f, 46.f),glm::vec3(-15.5f, 0.0f, 46.f),glm::vec3(15.5f, 0.0f, 46.f),glm::vec3(50.5f, 0.0f, 46.f),
+										glm::vec3(-41.f, 0.0f, 36.f),glm::vec3(-25.f, 0.0f, 36.f),glm::vec3(25.f, 0.0f, 36.f),glm::vec3(41.f, 0.0f, 36.f),
+										glm::vec3(-66.5f, 0.0f, -38.5f),glm::vec3(-66.5f, 0.0f, 38.5f),glm::vec3(-54.5f, 0.0f, -27.f),glm::vec3(-54.5f, 0.0f, 27.f),
+										glm::vec3(-54.5f, 0.0f, -9.f),glm::vec3(-54.5f, 0.0f, 9.f),glm::vec3(0.f, 0.0f, -40.5f),glm::vec3(-13.f, 0.0f, -27.f),
+										glm::vec3(-13.f, 0.0f, 27.f),glm::vec3(-14.5f, 0.0f, -9.f),glm::vec3(-14.5f, 0.0f, 9.f),glm::vec3(13.f, 0.0f, -27.f),
+										glm::vec3(13.f, 0.0f, 27.f),glm::vec3(14.5f, 0.0f, -9.f),glm::vec3(14.5f, 0.0f, 9.f),glm::vec3(65.5f, 0.0f, -38.5f),
+										glm::vec3(65.5f, 0.0f, 38.5f),glm::vec3(0.f, 0.0f, 40.5f),glm::vec3(53.5f, 0.0f, -27.f),glm::vec3(53.5f, 0.0f, 27.f),
+										glm::vec3(53.5f, 0.0f, -9.f),glm::vec3(53.5f, 0.0f, 9.f) };
+
+	//UTILES PARA ANIMACION COMPLEJA
+	glm::vec3 posicion_manzana = glm::vec3(posicion_arbol_animacion.x + 11.f, posicion_arbol_animacion.y + 6.5f * altura_lego, posicion_arbol_animacion.z + 1.5f);
+	const float g = 9.8;
+	const float altura_manzana_inicial = posicion_manzana.y;
+	float vi;
+	float tiempo1;
+	const float f_manzana = 100.f;
 
 	//Materiales
 	Material_brillante = Material(4.0f, 256);
@@ -305,59 +346,58 @@ int main()
 		0.7f, 0.7f,
 		0.0f, 10.0f, -1.0f);
 
-	DirectionalLight luna = DirectionalLight(0.0f, 0.0f, 0.0f,
-		0.f, 0.3f,
-		0.0f, 0.0f, -1.0f);
+	DirectionalLight luna = DirectionalLight(.2f, .2f, .2f,
+		0.7f, 0.7f,
+		0.0f, 10.0f, -1.0f);
 
 	//Luminarias (6)
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,//Posicion
-		0.3f, 0.2f, 0.1f);
-	pointLights[1] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,//Posicion
-		0.3f, 0.2f, 0.1f);
-	pointLights[2] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,//Posicion
-		0.3f, 0.2f, 0.1f);
-	pointLights[3] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,//Posicion
-		0.3f, 0.2f, 0.1f);
-	pointLights[4] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,//Posicion
-		0.3f, 0.2f, 0.1f);
-	pointLights[5] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-		0.0f, 1.0f,
-		2.0f, 1.5f, 1.5f,  //Posicion
-		0.3f, 0.2f, 0.1f);
+	for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+		pointLights[i] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
+			.0f, 1.0f,
+			posicion_lamparas[i].x, posicion_lamparas[i].y+8.5f, posicion_lamparas[i].z,//Posicion
+			0.3f, 0.2f, 0.1f);
+	}
 
 	//Quiosko (3)  
+	glm::vec3 colores[] = { glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f) };
+	SpotLight luces[3][MAX_SPOT_LIGHTS];
+
+	
+	float luces_quiosko_x = -34.5f;
+	float luces_quiosko_y = 7.5f;
+	float luces_quiosko_z = -1.f;
 	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(1.0f, .0f, 1.0f,
-		0.0f, 2.0f,
-		0.0f, 0.0f, 0.0f,  // Posicion
-		0.0f, -1.0f, 0.0f,  //Vector Direccion
-		1.0f, 0.0f, 0.0f,
-		20.0f);
+	
+	for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
+		int num1 = i;
+		int num2 = i+1;
+		if (num2 >= 3) num2 -= 3;
+		int num3 = i+2;
+		if (num3 >= 3) num3 -= 3;
 
-	spotLights[1] = SpotLight(1.0f, .0f, .0f,
-		0.0f, 2.0f,
-		0.0f, -1.5f, 0.f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		10.0f);
+		luces[i][0] = SpotLight(colores[num1].x, colores[num1].y, colores[num1].z,
+			0.0f, 2.0f,
+			luces_quiosko_x + 2.f, luces_quiosko_y, luces_quiosko_z + 1.f,
+			0.0f, -1.0f, 0.0f,  //Vector Direccion
+			1.0f, 0.0f, 0.0f,
+			15.0f);
 
-	spotLights[2] = SpotLight(.0f, .0f, 1.0f,
-		0.0f, 2.0f,
-		0.0f, -1.5f, 0.f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		10.0f);
+		luces[i][1] = SpotLight(colores[num2].x, colores[num2].y, colores[num2].z,
+			0.0f, 2.0f,
+			luces_quiosko_x - 2.f, luces_quiosko_y, luces_quiosko_z + 1.f,
+			0.0f, -1.0f, 0.0f,  //Vector Direccion
+			1.0f, 0.0f, 0.0f,
+			15.0f);
+
+		luces[i][2] = SpotLight(colores[num3].x, colores[num3].y, colores[num3].z,
+			0.0f, 2.0f,
+			luces_quiosko_x, luces_quiosko_y, luces_quiosko_z - 1.f,
+			0.0f, -1.0f, 0.0f,  //Vector Direccion
+			1.0f, 0.0f, 0.0f,
+			15.0f);
+	}
+	spotLights = luces[0];
 
 	//SKYBOX
 
@@ -404,10 +444,10 @@ int main()
 	alameda.LoadModel("models/alameda.obj");
 
 	arbol_manzano = Model();
-	arbol_manzano.LoadModel("models/arbol_manzano.obj");
+	//arbol_manzano.LoadModel("models/arbol_manzano.obj");
 
 	barco = Model();
-	barco.LoadModel("Models/PirateShip.obj");
+	//barco.LoadModel("Models/PirateShip.obj");
 
 	ballena = Model();
 	ballena.LoadModel("models/Ballena.obj");
@@ -526,7 +566,7 @@ int main()
 	Model hand = Model();
 	hand.LoadModel("models/hand.obj");
 	//TERMINA Avatar
-
+	
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
@@ -534,41 +574,24 @@ int main()
 	//para keyframes
 	leer_keyframes();
 
-	//tiempo
-	int tiempo = 0.f;
-	float f = 1500.f;
-
-	//barco
-	float barco_x = 150, barco_y = -2.0f, barco_z = 150;  // condiciones inciciales del barco
-	float angulo = -90, ang_temp = 0;
-	const float f_barco = 1000.f;
-	const float movx = 3.5f * barco_x / (f);
-	const float movz = 3.5f * barco_z / (f);
-	float escala = 1.f;
-	const float altura_lego = .96f;
-	const float largo_lego = .8f;
-
 	//para la camara
 	glm::mat4 viewMatrix;
 	glm::vec3 position;
 	glm::vec3 up = glm::vec3(0.f, 0.f, -1.f);
 	glm::vec3 des = glm::vec3(0.f, 0.f, 0.f);
 
-	//personaje
-	glm::vec3 posicion_avatar;
+	//para la fiesta
+	int tiempo_fiesta=0;
+	int estado_fiesta = 0;
 
-	//importante para acomodar objetos, luces, y animaciones
-	glm::vec3 posicion_alameda = glm::vec3(0.f, 0.f, 0.f);
-	glm::vec3 posicion_arbol_animacion = glm::vec3(-10 * largo_lego, 0.f, -10 * largo_lego);
-	glm::vec3 posicion_quiosko = glm::vec3(4 * largo_lego, 0.f, 0.f);
-
-	//UTILES PARA ANIMACION COMPLEJA
-	glm::vec3 posicion_manzana = glm::vec3(posicion_arbol_animacion.x + 11.f, posicion_arbol_animacion.y + 6.5f * altura_lego, posicion_arbol_animacion.z + 1.5f);
-	const float g = 9.8;
-	const float altura_manzana_inicial = posicion_manzana.y;
-	float vi;
-	float tiempo1;
-	const float f_manzana = 100.f;
+	//para caminar
+	glm::vec3 posicion_avatar_original = posicion_avatar;
+	int tiempo_caminar = 0;
+	const int tiempo_maximo = 40.f;
+	const float velocidad_avatar = .5f;
+	float angulo_avatar = 0.f;
+	bool subiendo_angulo = true;
+	int caminando = 0.f;
 
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
@@ -579,15 +602,15 @@ int main()
 
 		//configuracion dia - noche
 		int intervalo = (int)(tiempo / f) % 6;
-		if (intervalo == 0) {
+		if (intervalo == 0 && false) {
 			skybox = dia1;
 			pointLightCount = 0;
 			mainLight = sol;
 		}
-		else if (intervalo == 1) {
+		else if (intervalo == 1 && false) {
 			skybox = dia2;
 		}
-		else if (intervalo == 2) {
+		else if (intervalo == 2 && false) {
 			skybox = dia3;
 		}
 		else {  //noche
@@ -596,14 +619,33 @@ int main()
 			pointLightCount = MAX_POINT_LIGHTS;
 		}
 
-		if (mainWindow.getLucesPrendidasQuiosko()) {
+		//luces quiosko
+		if (!mainWindow.getLucesPrendidasQuiosko()) {
 			spotLightCount = 0;
 		}
 		else {
-			if ((int)(tiempo / 200) % 2)  // cambiar colores
+			if (mainWindow.getFiesta()) {
+				if (estado_fiesta == 0) {
+					tiempo_fiesta = tiempo;
+					estado_fiesta++;
+				}
+				int actual = tiempo_fiesta - tiempo;
+				int nivel_fiesta = (int)(actual / 5.f) % 6;
+				if (nivel_fiesta % 2 == 0) {
+					spotLightCount = MAX_SPOT_LIGHTS;
+					int indice = (int)(nivel_fiesta / 2);
+					spotLights = luces[indice];
+				}
+				else {
+					spotLightCount = 0;
+				}
+			}
+			else {
 				spotLightCount = MAX_SPOT_LIGHTS;
-			else
-				spotLightCount = 0;
+				spotLights = luces[0];
+				estado_fiesta = 0;
+			}
+			
 		}
 
 		//ANIMACION MANZANA
@@ -654,6 +696,37 @@ int main()
 			viewMatrix = camera.calculateViewMatrix();
 		}
 
+		//animacion avatar caminando
+		if (mainWindow.getCaminando()) {
+			if (caminando) {
+				caminando = 0.f;
+				tiempo_caminar = tiempo;
+			}
+			int tiempo_actual = tiempo - tiempo_caminar;
+			if (tiempo_actual > tiempo_maximo) {
+				mainWindow.terminarCaminar();
+			}
+			else {
+				float d = velocidad_avatar * (float)tiempo_actual;
+				posicion_avatar = posicion_avatar_original + glm::vec3(0.f, 0.f, -d);
+				if (subiendo_angulo) {
+					if (angulo_avatar == 90) {
+						subiendo_angulo = false;
+					}
+					angulo_avatar += 10.f;
+				}
+				else {
+					if (angulo_avatar == -90) {
+						subiendo_angulo = true;
+					}
+					angulo_avatar -= 10.f;
+				}
+			}
+			
+		}
+		else {
+			caminando = 1.f;
+		}
 		//Barco
 		int inter = (int)(tiempo / f_barco);
 		int estado = inter % 4;
@@ -746,197 +819,13 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		rejaGrande.RenderModel();
 
-		// LAMPARAS
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-50.5f, 0.0f, -47.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-15.5f, 0.0f, -47.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(14.5f, 0.0f, -47.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(49.5f, 0.0f, -47.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-41.f, 0.0f, -37.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-25.f, 0.0f, -37.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(24.f, 0.0f, -37.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(40.f, 0.0f, -37.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		//
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-50.5f, 0.0f, 46.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-15.5f, 0.0f, 46.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(15.5f, 0.0f, 46.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(50.5f, 0.0f, 46.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-41.f, 0.0f, 36.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-25.f, 0.0f, 36.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(25.f, 0.0f, 36.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(41.f, 0.0f, 36.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-66.5f, 0.0f, -38.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-66.5f, 0.0f, 38.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-54.5f, 0.0f, -27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-54.5f, 0.0f, 27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-54.5f, 0.0f, -9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-54.5f, 0.0f, 9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.f, 0.0f, -40.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-13.f, 0.0f, -27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-13.f, 0.0f, 27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-14.5f, 0.0f, -9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-14.5f, 0.0f, 9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(13.f, 0.0f, -27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(13.f, 0.0f, 27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(14.5f, 0.0f, -9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(14.5f, 0.0f, 9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(65.5f, 0.0f, -38.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(65.5f, 0.0f, 38.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.f, 0.0f, 40.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(53.5f, 0.0f, -27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(53.5f, 0.0f, 27.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(53.5f, 0.0f, -9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(53.5f, 0.0f, 9.f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lampara.RenderModel();
+		// LAMPARAS		
+		for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+			model = aux;
+			model = glm::translate(model, posicion_lamparas[i]);
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			lampara.RenderModel();
+		}
 
 		// BANCAS
 		model = glm::mat4(1.0);
@@ -1278,17 +1167,19 @@ int main()
 		//
 
 		//torso
+		
 		model = glm::mat4(1.0);
 		model = glm::translate(model, posicion_avatar);
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(1.f, 0.f, 0.f));
-		model = aux2 = glm::translate(model, glm::vec3(-1.f, -1.f, -1.f));
+		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.f, 1.f, 0.f));
+		model = aux2 = glm::translate(model, glm::vec3(-1.f,-1.f,-1.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		torso_plain.RenderModel();
 
 		//brazo izquierdo
 		model = aux2;
 		model = glm::translate(model, glm::vec3(2 * largo_lego / 3, altura_lego / 3, 0.f));
-		model = glm::rotate(model, tiempo * toRadians, glm::vec3(1.f, 0.f, 0.f));
+		model = glm::rotate(model, angulo_avatar * toRadians, glm::vec3(1.f, 0.f, 0.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		arm_left.RenderModel();
 
@@ -1300,7 +1191,7 @@ int main()
 		//brazo derecho
 		model = aux2;
 		model = glm::translate(model, glm::vec3(-2 * largo_lego / 3, altura_lego / 3, 0.f));
-		model = glm::rotate(model, tiempo * toRadians, glm::vec3(1.f, 0.f, 0.f));
+		model = glm::rotate(model, -angulo_avatar * toRadians, glm::vec3(1.f, 0.f, 0.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		arm_right.RenderModel();
 
@@ -1319,14 +1210,14 @@ int main()
 		//pie izquierdo
 		model = aux3;
 		model = glm::translate(model, glm::vec3(0.f, 1.5f * altura_lego / 3, 0.f));
-		model = glm::rotate(model, tiempo * toRadians, glm::vec3(1.f, 0.f, 0.f));
+		model = glm::rotate(model, -angulo_avatar * toRadians, glm::vec3(1.f, 0.f, 0.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		leg_left.RenderModel();
 
 		//pie derecho
 		model = aux3;
 		model = glm::translate(model, glm::vec3(0.f, 1.5f * altura_lego / 3, 0.f));
-		model = glm::rotate(model, tiempo * toRadians, glm::vec3(1.f, 0.f, 0.f));
+		model = glm::rotate(model, angulo_avatar * toRadians, glm::vec3(1.f, 0.f, 0.f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		leg_right.RenderModel();
 

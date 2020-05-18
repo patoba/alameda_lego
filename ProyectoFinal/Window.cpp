@@ -1,8 +1,12 @@
 #include "Window.h"
+//para el sonido
+#include <Windows.h>
 
 Window::Window()
 {
+	fiesta = false;
 	luces_quiosko_prendidas = false;
+	caminando = false;
 	width = 800;
 	height = 600;
 	estado_manzana = camara = 0;
@@ -13,9 +17,10 @@ Window::Window()
 }
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
+	fiesta = false;
 	estado_manzana = camara = 0;
-
 	luces_quiosko_prendidas = false;
+	caminando = false;
 	width = windowWidth;
 	height = windowHeight;
 	for (size_t i = 0; i < 1024; i++)
@@ -109,6 +114,17 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	if (key == GLFW_KEY_P && action == GLFW_RELEASE)  //encender luces quiosko
 	{
 		theWindow->luces_quiosko_prendidas = !(theWindow->luces_quiosko_prendidas);
+	}
+	if (key == GLFW_KEY_F && action == GLFW_RELEASE && theWindow->luces_quiosko_prendidas)  //encender la fiesta
+	{
+		theWindow->fiesta = !(theWindow->fiesta);
+			
+	}
+	if (key == GLFW_KEY_K && action == GLFW_RELEASE && theWindow->camara != 0) {
+		theWindow->caminando = !(theWindow->caminando);
+	}
+	if (key == GLFW_KEY_C && action == GLFW_RELEASE) {
+		PlaySound(TEXT("musica/orca.wav"), NULL, SND_SYNC);
 	}
 	if (key == GLFW_KEY_M && action == GLFW_RELEASE)  //cambiar camara
 	{
