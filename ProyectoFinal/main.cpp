@@ -23,7 +23,7 @@
 #include "Shader_light.h"
 #include "Camera.h"
 #include "Texture.h"
-//para iluminación
+//para iluminaciÃ³n
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -77,7 +77,7 @@ static const char* vShader = "shaders/shader_light.vert";
 
 // Fragment Shader
 static const char* fShader = "shaders/shader_light.frag";
-//cálculo del promedio de las normales para sombreado de Phong
+//cÃ¡lculo del promedio de las normales para sombreado de Phong
 void calcAverageNormals(unsigned int * indices, unsigned int indiceCount, GLfloat * vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
@@ -245,7 +245,7 @@ void inputKeyframes(bool* keys)
 				playIndex = 0;
 				i_curr_steps = 0;
 				reproduciranimacion++;
-				printf("presiona 0 para habilitar reproducir de nuevo la animación'\n");
+				printf("presiona 0 para habilitar reproducir de nuevo la animaciÃ³n'\n");
 				habilitaranimacion = 0;
 
 			}
@@ -341,7 +341,7 @@ int main()
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
-	//luz direccional, sólo 1 y siempre debe de existir
+	//luz direccional, sÃ³lo 1 y siempre debe de existir
 	DirectionalLight sol = mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 		0.7f, 0.7f,
 		0.0f, 10.0f, -1.0f);
@@ -602,15 +602,15 @@ int main()
 
 		//configuracion dia - noche
 		int intervalo = (int)(tiempo / f) % 6;
-		if (intervalo == 0 && false) {
+		if (intervalo == 0) {
 			skybox = dia1;
 			pointLightCount = 0;
 			mainLight = sol;
 		}
-		else if (intervalo == 1 && false) {
+		else if (intervalo == 1) {
 			skybox = dia2;
 		}
-		else if (intervalo == 2 && false) {
+		else if (intervalo == 2) {
 			skybox = dia3;
 		}
 		else {  //noche
