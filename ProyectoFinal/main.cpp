@@ -444,10 +444,10 @@ int main()
 	alameda.LoadModel("models/alameda.obj");
 
 	arbol_manzano = Model();
-	//arbol_manzano.LoadModel("models/arbol_manzano.obj");
+	arbol_manzano.LoadModel("models/arbol_manzano.obj");
 
 	barco = Model();
-	//barco.LoadModel("Models/PirateShip.obj");
+	barco.LoadModel("Models/PirateShip.obj");
 
 	ballena = Model();
 	ballena.LoadModel("models/Ballena.obj");
@@ -468,7 +468,7 @@ int main()
 	lampara.LoadModel("Models/Lamp.obj");
 
 	pino = Model();
-	//pino.LoadModel("Models/Pine.obj");
+	pino.LoadModel("Models/Pine.obj");
 
 	manzana = Model();
 	manzana.LoadModel("models/Manzana.obj");
@@ -566,6 +566,17 @@ int main()
 	Model hand = Model();
 	hand.LoadModel("models/hand.obj");
 	//TERMINA Avatar
+
+	//Arbustos
+	Model arbusto1 = Model();
+	arbusto1.LoadModel("models/arbusto1.obj");
+
+	Model arbusto2 = Model();
+	arbusto2.LoadModel("models/arbusto2.obj");
+
+	Model arbusto3 = Model();
+	arbusto3.LoadModel("models/arbusto3.obj");
+	//Fin arbustos
 	
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
@@ -946,6 +957,79 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		bath.RenderModel();
 
+
+
+		//ARBUSTOS
+		for (int i = -1; i < 2; i+=2) {
+			model = aux;
+			model = glm::translate(model, glm::vec3(i*60.f, 0.f, 0.f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			pino.RenderModel();
+
+			model = aux;
+			model = glm::translate(model, glm::vec3(i*5.f, 0.f, 12.f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			arbusto2.RenderModel();
+
+			model = aux;
+			model = glm::translate(model, glm::vec3(i*8.f, 0.f, 20.f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			arbusto3.RenderModel();
+
+			for (int j = -1; j < 2; j+=2) {
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*27.f, 0.f, j*40.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto1.RenderModel();
+
+
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*40.f, 0.f, j*40.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto1.RenderModel();
+
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*34.f, 0.f, j*43.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto2.RenderModel();
+
+
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*61.f, 0.f, j*10.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto1.RenderModel();
+
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*63.f, 0.f, j*16.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto2.RenderModel();
+
+				model = aux;
+				model = glm::translate(model, glm::vec3(i*60.f, 0.f, j*23.f));
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				arbusto3.RenderModel();
+			}
+		}
+		
+		
+		model = aux;
+		model = glm::translate(model, glm::vec3(0.f, 0.f, 5.f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		arbusto1.RenderModel();
+
+		model = aux;
+		model = glm::translate(model, glm::vec3(0.f, 0.f, 20.f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		arbusto3.RenderModel();
+		
+		
+		
+		/*
+		model = aux;
+		model = glm::translate(model, glm::vec3(33.f, 2.f, 9.f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		arbusto2.RenderModel();
+		*/
 		//EMPIEZA QUIOSKO
 		//
 		//gris claro
