@@ -288,8 +288,8 @@ void CreateShaders()
 
 int main()
 {
-	mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
-	//mainWindow = Window(2560, 1440);
+	//mainWindow = Window(800, 600); // 1280, 1024 or 1024, 768
+	mainWindow = Window(2560, 1440);
 	mainWindow.Initialise();
 
 	CreateShaders();
@@ -354,7 +354,7 @@ int main()
 	unsigned int pointLightCount = 0;
 	for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
 		pointLights[i] = PointLight(1.0f, 1.0f, 1.0f,  //Blancas
-			.0f, 1.0f,
+			1.0f, 1.0f,
 			posicion_lamparas[i].x, posicion_lamparas[i].y+8.5f, posicion_lamparas[i].z,//Posicion
 			0.3f, 0.2f, 0.1f);
 	}
@@ -462,13 +462,13 @@ int main()
 	boteBasura.LoadModel("models/boteBasura.obj");
 
 	fuente = Model();
-	//fuente.LoadModel("Models/Fountain.obj");
+	fuente.LoadModel("Models/Fountain.obj");
 
 	lampara = Model();
 	lampara.LoadModel("Models/Lamp.obj");
 
 	pino = Model();
-	pino.LoadModel("Models/Pine.obj");
+	pino.LoadModel("Models/pino.obj");
 
 	manzana = Model();
 	manzana.LoadModel("models/Manzana.obj");
@@ -613,15 +613,15 @@ int main()
 
 		//configuracion dia - noche
 		int intervalo = (int)(tiempo / f) % 6;
-		if (intervalo == 0) {
+		if (intervalo == 0 && !false) {
 			skybox = dia1;
 			pointLightCount = 0;
 			mainLight = sol;
 		}
-		else if (intervalo == 1) {
+		else if (intervalo == 1 && !false) {
 			skybox = dia2;
 		}
-		else if (intervalo == 2) {
+		else if (intervalo == 2 && !false) {
 			skybox = dia3;
 		}
 		else {  //noche
@@ -641,7 +641,7 @@ int main()
 					estado_fiesta++;
 				}
 				int actual = tiempo_fiesta - tiempo;
-				int nivel_fiesta = (int)(actual / 5.f) % 6;
+				int nivel_fiesta = (int)(actual / 2.f) % 6;
 				if (nivel_fiesta % 2 == 0) {
 					spotLightCount = MAX_SPOT_LIGHTS;
 					int indice = (int)(nivel_fiesta / 2);
@@ -831,7 +831,7 @@ int main()
 		rejaGrande.RenderModel();
 
 		// LAMPARAS		
-		for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+		for (int i = 0; i < 38; i++) {
 			model = aux;
 			model = glm::translate(model, posicion_lamparas[i]);
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1333,6 +1333,12 @@ int main()
 		model = glm::scale(model, glm::vec3(escala, escala, escala));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		manzana.RenderModel();
+
+		// Fuente
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(33.5f, 0.0f, 0.f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		fuente.RenderModel();
 
 		//BALLENA
 		model = aux;
